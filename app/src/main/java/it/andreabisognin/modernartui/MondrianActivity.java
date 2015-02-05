@@ -20,8 +20,10 @@ public class MondrianActivity extends ActionBarActivity {
 
     private int[] originalColors = {  R.color.yellow, R.color.white,
             R.color.blue, R.color.red,R.color.white };
+//    private int[] actualColors = new int[originalColors.length];
     private String TAG="bisio";
     private ArrayList<TextView> blockList=null;
+    private float[] hsv = new float[3];
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,6 +41,7 @@ public class MondrianActivity extends ActionBarActivity {
         blockList.add(block4);
         blockList.add(block5);
         initColors();
+        logSaturations();
         SeekBar seekBar = (SeekBar) findViewById(R.id.seekBar);
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
                                                @Override
@@ -53,10 +56,24 @@ public class MondrianActivity extends ActionBarActivity {
 
                                                @Override
                                                public void onStopTrackingTouch(SeekBar seekBar) {
-                                                Log.i(TAG,"changed seekBar value to "+ seekBar.getProgress());
+                                                //Log.i(TAG,"changed seekBar value to "+ seekBar.getProgress());
+                                                float factor = (float) (100 - seekBar.getProgress())  /100;
+                                                //Log.i(TAG,"factor = "+factor);
+                                                doRepaint(factor);
                                                }
                                            }
         );
+    }
+
+    public void doRepaint(float factor) {
+        for(int i=0; i<blockList.size(); i++) {
+            int color = getResources().getColor(originalColors[i]);
+            Color.colorToHSV(color,hsv);
+            hsv[1] = hsv[1] * factor;
+            int new_color = Color.HSVToColor(hsv);
+            blockList.get(i).setBackgroundColor(new_color);
+            //Log.i(TAG,"saturation is "+hsv[1]);
+        }
     }
 
 
@@ -64,6 +81,16 @@ public class MondrianActivity extends ActionBarActivity {
         for(int i=0; i<blockList.size(); i++) {
             int color = getResources().getColor(originalColors[i]);
             blockList.get(i).setBackgroundColor(color);
+        }
+    }
+
+    public void logSaturations() {
+
+        for(int i=0; i<blockList.size(); i++) {
+            int color = getResources().getColor(originalColors[i]);
+            Color.colorToHSV(color,hsv);
+            float saturation = hsv[1];
+           // Log.i(TAG,"saturation is "+saturation);
         }
     }
 
@@ -90,7 +117,7 @@ public class MondrianActivity extends ActionBarActivity {
             builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
-                    Log.i(TAG,"clicked ok!");
+                    //Log.i(TAG,"clicked ok!");
                     String url = "http://www.moma.org/m";
                     Intent intent = new Intent(Intent.ACTION_VIEW);
                     intent.setData(Uri.parse(url));
@@ -102,7 +129,7 @@ public class MondrianActivity extends ActionBarActivity {
             builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
-                    Log.i(TAG,"clicked cancel!");
+                    //Log.i(TAG,"clicked cancel!");
                 }
             });
 
